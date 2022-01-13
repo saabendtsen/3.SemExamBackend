@@ -14,6 +14,13 @@ public class UserDTO {
     private String phone;
 
 
+    public UserDTO() {
+    }
+
+    public UserDTO(String thisuser) {
+        this.username = thisuser;
+    }
+
     public static List<UserDTO> getDtos(List<User> u){
         List<UserDTO> userDTOSdtos = new ArrayList();
         u.forEach(um -> userDTOSdtos.add(new UserDTO(um)));
@@ -32,6 +39,8 @@ public class UserDTO {
             this.name = user.getName();
         }
     }
+
+
 
 
 

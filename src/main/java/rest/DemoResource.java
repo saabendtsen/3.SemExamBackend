@@ -20,6 +20,8 @@ import javax.ws.rs.core.UriInfo;
 import java.io.IOException;
 import java.util.List;
 
+import static utils.SetupTestUsers.setupUsers;
+
 @Path("/info")
 public class DemoResource {
 
@@ -44,32 +46,8 @@ public class DemoResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("createusers")
     public String createUsers() {
-
-        EntityManager em = EMF.createEntityManager();
-
-        User user = new User("user", "user1");
-        User user1 = new User("user1", "user1");
-//        User admin = new User("admin", "admin1");
-
-        try {
-            em.getTransaction().begin();
-            Role userRole = new Role("user");
-            Role adminRole = new Role("admin");
-            user.addRole(userRole);
-            user1.addRole(userRole);
-//      admin.addRole(adminRole);
-            em.persist(userRole);
-            em.persist(adminRole);
-            em.persist(user);
-            em.persist(user1);
-//      em.persist(admin);
-            em.getTransaction().commit();
-            return "Users Created!";
-        } catch (Exception e) {
-            return e.getMessage();
-        } finally {
-            em.close();
-        }
+      setupUsers(EMF);
+      return "Test Data Created";
     }
 
     @GET

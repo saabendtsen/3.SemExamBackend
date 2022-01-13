@@ -21,6 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import utils.EMF_Creator;
+import utils.SetupTestUsers;
 
 //Disabled
 public class LoginEndpointTest {
@@ -42,6 +43,7 @@ public class LoginEndpointTest {
         //This method must be called before you request the EntityManagerFactory
         EMF_Creator.startREST_TestWithDB();
         emf = EMF_Creator.createEntityManagerFactoryForTest();
+        SetupTestUsers.setupUsers(emf);
 
         httpServer = startServer();
         //Setup RestAssured
@@ -59,35 +61,9 @@ public class LoginEndpointTest {
     }
 
     // Setup the DataBase (used by the test-server and this test) in a known state BEFORE EACH TEST
-    //TODO -- Make sure to change the EntityClass used below to use YOUR OWN (renamed) Entity class
     @BeforeEach
     public void setUp() {
-        EntityManager em = emf.createEntityManager();
-        try {
-            em.getTransaction().begin();
-            //Delete existing users and roles to get a "fresh" database
-            em.createQuery("delete from User").executeUpdate();
-            em.createQuery("delete from Role").executeUpdate();
 
-            Role userRole = new Role("user");
-            Role adminRole = new Role("admin");
-            User user = new User("user", "test");
-            user.addRole(userRole);
-            User admin = new User("admin", "test");
-            admin.addRole(adminRole);
-            User both = new User("user_admin", "test");
-            both.addRole(userRole);
-            both.addRole(adminRole);
-            em.persist(userRole);
-            em.persist(adminRole);
-            em.persist(user);
-            em.persist(admin);
-            em.persist(both);
-            //System.out.println("Saved test data to database");
-            em.getTransaction().commit();
-        } finally {
-            em.close();
-        }
     }
 
     //This is how we hold on to the token after login, similar to that a client must store the token somewhere
@@ -127,7 +103,7 @@ public class LoginEndpointTest {
 
     @Test
     public void testRestForAdmin() {
-        login("admin", "test");
+        login("admin", "admin1");
         given()
                 .contentType("application/json")
                 .accept(ContentType.JSON)
@@ -139,7 +115,7 @@ public class LoginEndpointTest {
 
     @Test
     public void testRestForUser() {
-        login("user", "test");
+        login("user", "user1");
         given()
                 .contentType("application/json")
                 .header("x-access-token", securityToken)
@@ -150,7 +126,7 @@ public class LoginEndpointTest {
 
     @Test
     public void testAutorizedUserCannotAccesAdminPage() {
-        login("user", "test");
+        login("user", "user1");
         given()
                 .contentType("application/json")
                 .header("x-access-token", securityToken)
@@ -161,7 +137,7 @@ public class LoginEndpointTest {
 
     @Test
     public void testAutorizedAdminCannotAccesUserPage() {
-        login("admin", "test");
+        login("admin", "admin1");
         given()
                 .contentType("application/json")
                 .header("x-access-token", securityToken)

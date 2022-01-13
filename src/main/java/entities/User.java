@@ -43,6 +43,16 @@ public class User implements Serializable {
   private String address;
   private String phone;
 
+  @ManyToMany
+  private List<Boat> boats;
+
+  public List<Boat> getBoats() {
+    return boats;
+  }
+
+  public void setBoats(List<Boat> boats) {
+    this.boats = boats;
+  }
 
   public List<String> getRolesAsStrings() {
     if (roleList.isEmpty()) {
@@ -69,8 +79,13 @@ public class User implements Serializable {
 
   public User(String username, String password) {
     this.username = username;
-
     this.password = BCrypt.hashpw(password, BCrypt.gensalt());
+  }
+
+  public User(String username, String password, String name) {
+    this.username = username;
+    this.password = BCrypt.hashpw(password, BCrypt.gensalt());
+    this.name = name;
   }
 
 
@@ -126,4 +141,7 @@ public class User implements Serializable {
     this.name = name;
   }
 
+  public void addBoat(Boat boat) {
+    this.boats.add(boat);
+  }
 }
