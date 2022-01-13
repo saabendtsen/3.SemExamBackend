@@ -46,8 +46,37 @@ public class DemoResource {
     @Produces(MediaType.APPLICATION_JSON)
     @Path("createusers")
     public String createUsers() {
-      setupUsers(EMF);
-      return "Test Data Created";
+        EntityManager em = EMF.createEntityManager();
+
+        User user = new User("user", "user1","Niller");
+        User user1 = new User("user1", "user1","Kristian");
+        User admin = new User("admin", "admin1");
+        User both = new User("user_admin", "test");
+
+
+        try {
+            em.getTransaction().begin();
+            Role userRole = new Role("user");
+            Role adminRole = new Role("admin");
+            user.addRole(userRole);
+            user1.addRole(userRole);
+            admin.addRole(adminRole);
+            user.setAddress("Bøgevej");
+            user.setPhone("31546576");
+            both.addRole(userRole);
+            both.addRole(adminRole);
+            em.persist(userRole);
+            em.persist(adminRole);
+            em.persist(user);
+            em.persist(user1);
+            em.persist(admin);
+            em.persist(both);
+            em.getTransaction().commit();
+            System.out.println("Users Created!");
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+        return "Test Data Created";
     }
 
     @GET
