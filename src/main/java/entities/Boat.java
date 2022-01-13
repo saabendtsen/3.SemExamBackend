@@ -22,6 +22,9 @@ public class Boat {
     @ManyToMany(mappedBy = "boats")
     private List<User> owner;
 
+    @ManyToOne
+    private Auction auction;
+
 
 
     public Boat() {
@@ -91,6 +94,14 @@ public class Boat {
 
     public void setId(Long id) {
         this.id = id;
+    }
+
+    public Auction getAuction() {
+        return auction;
+    }
+
+    public void setAuction(Auction auction) {
+        this.auction = auction;
     }
 
     public void addOwner(User u) {

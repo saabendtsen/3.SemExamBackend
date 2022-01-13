@@ -2,6 +2,7 @@ package rest;
 
 import com.nimbusds.jose.shaded.json.JSONArray;
 import com.nimbusds.jose.shaded.json.JSONObject;
+import dtos.AuctionDTO;
 import dtos.BoatDTO;
 import entities.Role;
 import entities.User;
@@ -27,16 +28,16 @@ import java.util.List;
 
 import static io.restassured.RestAssured.given;
 import static org.hamcrest.Matchers.greaterThan;
-import static org.hamcrest.MatcherAssert.assertThat;
+
 import static org.hamcrest.Matchers.hasSize;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 
-class BoatResourceTest {
+class AuctionResourceTest {
 
 
 
-    private static final int SERVER_PORT = 7778;
+    private static final int SERVER_PORT = 7777;
     private static final String SERVER_URL = "http://localhost/api";
     private static HttpServer httpServer;
     static final URI BASE_URI = UriBuilder.fromUri(SERVER_URL).port(SERVER_PORT).build();
@@ -97,59 +98,45 @@ class BoatResourceTest {
 
     @Test
     public void serverIsRunning() {
-        given().when().get("/boat").then().statusCode(200);
+        given().when().get("/auction").then().statusCode(200);
     }
 
 
-
     //@Test
-    void createBoat() {
-        login("user","user1");
-
-        JSONObject ownersJSON = new JSONObject();
-        ownersJSON.put("username","user");
-
-        JSONArray array = new JSONArray();
-        array.add(ownersJSON);
-
+    public void createAuction(){
+        login("admin","admin1");
 
         JSONObject requestParams = new JSONObject();
-        requestParams.put("brand","volvo");
-        requestParams.put("make","Japan");
-        requestParams.put("name","julia");
-        requestParams.put("image","BilledURL");
-       // requestParams.put("owners",array);
+        requestParams.put("time","10:25:00");
+        requestParams.put("date","2023-06-14");
+        requestParams.put("name","The Big Thing");
+        requestParams.put("location","New york");
         System.out.println(requestParams);
 
         given()
                 .contentType("application/json")
                 .body(requestParams.toString())
                 .when()
-                .post("/boat/createBoat")
+                .post("/auction/createAuction")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK_200.getStatusCode())
                 .body("id", greaterThan(0));
     }
 
+
     //@Test
-    void getMyBoats(){
-        createBoat();
-        login("user","user1");
-        List<BoatDTO> boatDTOList = given()
-                .contentType(ContentType.JSON)
-                .get("boat/myBoats")
-                .then()
-                .extract().body().jsonPath().getList("",BoatDTO.class);
+    public void getAllAuctions(){
+        login("admin","admin1");
+        createAuction();
+        createAuction();
 
-        assertTrue(boatDTOList.size()<0);
-
+        given()
+                .contentType("application/json")
+                .get("/auction/allAuction").then()
+                .assertThat()
+                .statusCode(HttpStatus.OK_200.getStatusCode())
+                .body("all", greaterThan(1));
     }
 
-
-
-
-
-
-
-}
+    }
