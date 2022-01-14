@@ -2,6 +2,7 @@ package facades;
 
 import dtos.AuctionDTO;
 import entities.Auction;
+import entities.Boat;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
@@ -48,6 +49,24 @@ public class AuctionFacade {
         } finally {
             em.close();
         }
+    }
+
+    //TODO Creates new record from Rest Endpoint, but not from Test.
+    public AuctionDTO updateAuction(AuctionDTO auctionDTO){
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            Auction auction = em.find(Auction.class,auctionDTO.getId());
+            auction.updateFromDTO(auctionDTO);
+            Auction newAuction = em.merge(auction);
+            em.getTransaction().commit();
+            System.out.println(newAuction.getId());
+            return new AuctionDTO(newAuction);
+        } finally {
+            em.close();
+        }
+
+
     }
 
 }

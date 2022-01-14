@@ -1,5 +1,6 @@
 package dtos;
 
+import entities.Auction;
 import entities.Boat;
 import entities.User;
 
@@ -14,6 +15,7 @@ public class BoatDTO {
     private String name;
     private String image;
     private List<UserDTO> owners = new ArrayList();
+    private AuctionDTO auction;
 
 
     public BoatDTO() {
@@ -28,6 +30,12 @@ public class BoatDTO {
         this.name = boat.getName();
         this.image = boat.getImage();
         this.owners = UserDTO.getDtos(boat.getOwner());
+
+        if(boat.getAuction() != null) {
+            this.auction = new AuctionDTO(boat.getAuction().getName());
+        } else {
+            this.auction = null;
+        }
     }
 
     public BoatDTO(String brand, String make, String name, String image) {
@@ -44,6 +52,13 @@ public class BoatDTO {
         return boatDTOSdtos;
     }
 
+    public AuctionDTO getAuction() {
+        return auction;
+    }
+
+    public void setAuction(AuctionDTO auction) {
+        this.auction = auction;
+    }
 
     public List<UserDTO> getOwners() {
         return owners;

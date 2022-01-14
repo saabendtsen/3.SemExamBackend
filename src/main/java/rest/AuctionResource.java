@@ -52,4 +52,14 @@ public class AuctionResource {
         return Response.ok(gson.toJson(facade.getAllAuction()),"application/json").build();
     }
 
+    @PUT
+    @Path("/updateAuction")
+    @RolesAllowed("admin")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateAuction(String newAction){
+        AuctionDTO auctionDTO = gson.fromJson(newAction,AuctionDTO.class);
+        auctionDTO  = facade.updateAuction(auctionDTO);
+        return Response.ok(gson.toJson(auctionDTO),"application/json").build();
+    }
 }

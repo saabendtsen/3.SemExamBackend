@@ -2,6 +2,7 @@ package facades;
 
 import dtos.BoatDTO;
 import dtos.UserDTO;
+import entities.Auction;
 import entities.Boat;
 import entities.User;
 
@@ -45,6 +46,19 @@ public class BoatFacade {
         }
     }
 
+    public BoatDTO deleteBoat(String id){
+        EntityManager em = emf.createEntityManager();
+        try{
+            em.getTransaction().begin();
+            Boat boat = em.find(Boat.class,Long.parseLong(id));
+            em.remove(boat);
+            em.getTransaction().commit();
+            return new BoatDTO(boat);
+        } finally {
+            em.close();
+        }
+    }
+
     public List<BoatDTO> getAllBoatsByUser(String userName){
         EntityManager em = emf.createEntityManager();
         User user;
@@ -57,6 +71,52 @@ public class BoatFacade {
         } finally {
             em.close();
         }
+    }
 
+
+    //TODO: Does not handle updated Owners ATM
+    public BoatDTO updateBoat (BoatDTO boatDTO){
+        EntityManager em = emf.createEntityManager();
+        try{
+            em.getTransaction().begin();
+            Boat boat = em.find(Boat.class,boatDTO.getId());
+            boat.updateFromDto(boatDTO);
+            boat = em.merge(boat);
+            em.getTransaction().commit();
+            return new BoatDTO(boat);
+        } finally {
+            em.close();
+        }
+    }
+
+    public BoatDTO addToAuction(BoatDTO boatDTO){
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            Auction auction = em.find(Auction.class,boatDTO.getAuction().getId());
+            Boat boat = em.find(Boat.class,boatDTO.getId());
+            boat.addAuction(auction);
+            Boat newBoat = em.merge(boat);
+            em.getTransaction().commit();
+            System.out.println(newBoat.getAuction().getName() + " from Facade");
+            return new BoatDTO(newBoat);
+        } finally {
+            em.close();
+        }
+    }
+
+    public BoatDTO deleteFromAution(Long id){
+        EntityManager em = emf.createEntityManager();
+        try {
+            em.getTransaction().begin();
+            Boat boat = em.find(Boat.class,id);
+            boat.removeAuction();
+            boat = em.merge(boat);
+            em.getTransaction().commit();
+            System.out.println(boat.getAuction());
+            return new BoatDTO(boat);
+        } finally {
+            em.close();
+        }
     }
 }

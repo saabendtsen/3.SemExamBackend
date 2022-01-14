@@ -1,16 +1,7 @@
 package dtos;
 
 import entities.Auction;
-import entities.Boat;
-import org.eclipse.persistence.jpa.jpql.parser.DateTime;
-
-import javax.persistence.*;
-import java.sql.Timestamp;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 public class AuctionDTO {
@@ -20,8 +11,7 @@ public class AuctionDTO {
     private String date;
     private String time;
     private String location;
-
-    private List<Boat> boatList;
+    private List<BoatDTO> boatList;
 
 
     public AuctionDTO() {
@@ -35,12 +25,18 @@ public class AuctionDTO {
     }
 
     public AuctionDTO(Auction auction) {
-        this.id = auction.getId();
+        if(auction.getId() != null) {
+            this.id = auction.getId();
+        }
         this.name = auction.getName();
         this.date = auction.getDate().toString();
         this.time = auction.getTime().toString();
         this.location = auction.getLocation();
-        this.boatList = auction.getBoatList();
+        this.boatList = BoatDTO.getDtos(auction.getBoatList());
+    }
+
+    public AuctionDTO(String name) {
+        this.name = name;
     }
 
     public static List<AuctionDTO> getDtos(List<Auction> b){
@@ -89,11 +85,11 @@ public class AuctionDTO {
         this.location = location;
     }
 
-    public List<Boat> getBoatList() {
+    public List<BoatDTO> getBoatList() {
         return boatList;
     }
 
-    public void setBoatList(List<Boat> boatList) {
+    public void setBoatList(List<BoatDTO> boatList) {
         this.boatList = boatList;
     }
 }

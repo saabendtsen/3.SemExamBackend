@@ -24,6 +24,7 @@ class AuctionFacadeTest {
 
     private static EntityManagerFactory emf;
     private static AuctionFacade instance;
+    AuctionDTO auctionDTO;
 
     @BeforeAll
     public static void setUpClass(){
@@ -33,10 +34,9 @@ class AuctionFacadeTest {
     }
 
 
-
     @Test
     void createAuction() {
-        AuctionDTO auctionDTO = new AuctionDTO("The big one","2020-05-13","10:14:45","New york");
+        auctionDTO = new AuctionDTO("The big one","2020-05-13","10:14:45","New york");
         auctionDTO = instance.createAuction(auctionDTO);
         assertTrue(auctionDTO.getId() != null);
     }
@@ -47,5 +47,15 @@ class AuctionFacadeTest {
         createAuction();
         List<AuctionDTO> auctionDTOS = instance.getAllAuction();
         assertTrue(auctionDTOS.size() > 0);
+    }
+
+    @Test
+    void updateAuction(){
+        createAuction();
+        AuctionDTO newAuction = new AuctionDTO("New Auction Name","2020-05-13","10:14:45","New york");
+        newAuction.setId(1L);
+        AuctionDTO newAuctionDTO = instance.updateAuction(newAuction);
+        assertTrue(newAuctionDTO.getName().equals("New Auction Name"));
+
     }
 }

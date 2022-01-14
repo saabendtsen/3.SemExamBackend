@@ -27,7 +27,7 @@ public class Auction {
     private LocalTime time;
     private String location;
 
-    @OneToMany(mappedBy = "auction")
+    @OneToMany(mappedBy = "auction",cascade = CascadeType.ALL)
     private List<Boat> boatList = new ArrayList<>();
 
 
@@ -35,7 +35,6 @@ public class Auction {
     }
 
     public Auction(AuctionDTO auctionDTO) {
-
         if(auctionDTO.getId() != null){
             this.id = auctionDTO.getId();
         }
@@ -92,5 +91,16 @@ public class Auction {
 
     public void setBoatList(List<Boat> boatList) {
         this.boatList = boatList;
+    }
+
+    public void addBoat(Boat boat) {
+        this.boatList.add(boat);
+    }
+
+    public void updateFromDTO(AuctionDTO auctionDTO) {
+        setDate(LocalDate.parse(auctionDTO.getDate()));
+        setName(auctionDTO.getName());
+        setLocation(auctionDTO.getLocation());
+        setTime(LocalTime.parse(auctionDTO.getTime()));
     }
 }

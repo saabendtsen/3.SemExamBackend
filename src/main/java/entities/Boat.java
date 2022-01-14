@@ -1,5 +1,6 @@
 package entities;
 
+import dtos.AuctionDTO;
 import dtos.BoatDTO;
 import dtos.UserDTO;
 
@@ -18,11 +19,10 @@ public class Boat {
     private String name;
     private String image;
 
-
     @ManyToMany(mappedBy = "boats")
     private List<User> owner;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     private Auction auction;
 
 
@@ -46,6 +46,9 @@ public class Boat {
         this.name = boatDTO.getName();
         this.image = boatDTO.getImage();
         this.owner = new ArrayList<>();
+        if(boatDTO.getAuction()!= null){
+            this.auction = new Auction(boatDTO.getAuction());
+        }
     }
 
     public String getBrand() {
@@ -107,5 +110,22 @@ public class Boat {
     public void addOwner(User u) {
         this.owner.add(u);
         u.addBoat(this);
+    }
+
+    public void updateFromDto(BoatDTO boatDTO) {
+        setBrand(boatDTO.getBrand());
+        setMake(boatDTO.getMake());
+        setName(boatDTO.getName());
+        setImage(boatDTO.getImage());
+    }
+
+    public void addAuction(Auction auction) {
+        this.auction = auction;
+        auction.addBoat(this);
+    }
+
+    public void removeAuction() {
+        this.auction.getBoatList().remove(this);
+        this.auction = null;
     }
 }

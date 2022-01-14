@@ -42,6 +42,7 @@ class BoatResourceTest {
     static final URI BASE_URI = UriBuilder.fromUri(SERVER_URL).port(SERVER_PORT).build();
     private static EntityManagerFactory emf;
     private static String securityToken;
+    private BoatDTO boatDTO;
 
     static HttpServer startServer() {
         ResourceConfig rc = ResourceConfig.forApplication(new ApplicationConfig());
@@ -75,7 +76,7 @@ class BoatResourceTest {
         RestAssured.defaultParser = Parser.JSON;
     }
 
-
+    @AfterAll
     public static void closeTestServer() {
         //Don't forget this, if you called its counterpart in @BeforeAll
         EMF_Creator.endREST_TestWithDB();
@@ -101,8 +102,7 @@ class BoatResourceTest {
     }
 
 
-
-    //@Test
+    @Test
     void createBoat() {
         login("user","user1");
 
@@ -112,7 +112,6 @@ class BoatResourceTest {
         JSONArray array = new JSONArray();
         array.add(ownersJSON);
 
-
         JSONObject requestParams = new JSONObject();
         requestParams.put("brand","volvo");
         requestParams.put("make","Japan");
@@ -121,30 +120,106 @@ class BoatResourceTest {
        // requestParams.put("owners",array);
         System.out.println(requestParams);
 
-        given()
+        boatDTO = given()
                 .contentType("application/json")
+                .header("x-access-token",securityToken)
                 .body(requestParams.toString())
                 .when()
                 .post("/boat/createBoat")
                 .then()
                 .assertThat()
                 .statusCode(HttpStatus.OK_200.getStatusCode())
-                .body("id", greaterThan(0));
+                .extract().as(BoatDTO.class);
+
+
+        assertTrue(boatDTO.getId() > 0);
+
     }
 
-    //@Test
-    void getMyBoats(){
+    @Test
+    List<BoatDTO> getMyBoats(){
         createBoat();
         login("user","user1");
         List<BoatDTO> boatDTOList = given()
                 .contentType(ContentType.JSON)
+                .header("x-access-token",securityToken)
                 .get("boat/myBoats")
                 .then()
                 .extract().body().jsonPath().getList("",BoatDTO.class);
+        assertTrue(boatDTOList.size()>0);
 
-        assertTrue(boatDTOList.size()<0);
-
+        return boatDTOList;
     }
+
+
+    @Test
+    void editBoat(){
+
+        createBoat();
+        login("user","user1");
+        JSONObject ownersJSON = new JSONObject();
+        ownersJSON.put("username","user");
+
+        JSONArray array = new JSONArray();
+        array.add(ownersJSON);
+
+        JSONObject requestParams = new JSONObject();
+        requestParams.put("id", boatDTO.getId());
+        requestParams.put("brand","volvo");
+        requestParams.put("make","Japan");
+        requestParams.put("name","New Name");
+        requestParams.put("image","BilledURL");
+        // requestParams.put("owners",array);
+        System.out.println(requestParams);
+
+        boatDTO = given()
+                .contentType("application/json")
+                .header("x-access-token",securityToken)
+                .body(requestParams.toString())
+                .when()
+                .post("/boat/createBoat")
+                .then()
+                .assertThat()
+                .statusCode(HttpStatus.OK_200.getStatusCode())
+                .extract().as(BoatDTO.class);
+
+
+        assertTrue(boatDTO.getName().equals("New Name"));
+    }
+
+
+
+    //Todo need to be implemented
+    @Test
+    void addtoAuction(){
+   }
+
+
+    //Todo need to be implemented
+    @Test
+    void deleteFromAuction(){
+    }
+
+
+
+    //After is still same as before, but DB shows -1 record.
+    //@Test
+    void deleteBoat(){
+        createBoat();
+        int before = getMyBoats().size();
+        login("user","user1");
+        boatDTO = given()
+                .contentType(ContentType.JSON)
+                .header("x-access-token",securityToken)
+                .delete("boat/" + boatDTO.getId())
+                .then()
+                .extract().as(BoatDTO.class);
+        int after = getMyBoats().size();
+        System.out.println(before + " " +after);
+        assertTrue(before-1 == after);
+    }
+
+
 
 
 

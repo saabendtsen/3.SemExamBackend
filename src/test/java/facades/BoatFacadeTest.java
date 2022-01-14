@@ -1,5 +1,6 @@
 package facades;
 
+import dtos.AuctionDTO;
 import dtos.BoatDTO;
 import dtos.UserDTO;
 import entities.Boat;
@@ -20,8 +21,9 @@ class BoatFacadeTest {
 
     private static EntityManagerFactory emf;
     private static BoatFacade instance;
+    private static AuctionFacade auctionFacade;
 
-    Boat boat;
+    BoatDTO boatDTO;
 
 
 
@@ -30,6 +32,7 @@ class BoatFacadeTest {
     public static void setUpClass(){
         emf = EMF_Creator.createEntityManagerFactoryForTest();
         instance = BoatFacade.getBoatFacade(emf);
+        auctionFacade = AuctionFacade.getAuctionFacade(emf);
         SetupTestUsers.setupUsers(emf);
     }
 
@@ -46,7 +49,7 @@ class BoatFacadeTest {
 
     @Test
     void createBoat(){
-        BoatDTO boatDTO = new BoatDTO("Volvo","Japan","julia","BilledURL");
+        boatDTO = new BoatDTO("Volvo","Japan","julia","BilledURL");
         UserDTO userDTO = new UserDTO();
         userDTO.setUsername("user");
         boatDTO.getOwners().add(userDTO);
@@ -61,4 +64,43 @@ class BoatFacadeTest {
         assertTrue(!boatDTOList.isEmpty());
     }
 
+    @Test
+    void updateBoat(){
+        createBoat();
+        boatDTO.setName("New Name");
+        boatDTO = instance.updateBoat(boatDTO);
+        assertTrue(boatDTO.getName().equals("New Name"));
+    }
+
+    @Test
+    void addBoatToAuction(){
+        AuctionDTO auctionDTO = new AuctionDTO("The big one","2020-05-13","10:14:45","New york");
+        auctionDTO = auctionFacade.createAuction(auctionDTO);
+        createBoat();
+        boatDTO.setAuction(auctionDTO);
+        boatDTO = instance.addToAuction(boatDTO);
+        assertTrue(boatDTO.getAuction().getName()!= null);
+    }
+
+    @Test
+    void deleteFromAution(){
+        addBoatToAuction();
+        boatDTO = instance.deleteFromAution(boatDTO.getId());
+        assertTrue(boatDTO.getAuction() == null);
+    }
+
+
+    //After is still same as before, but DB shows -1 record.
+    //@Test
+    void deleteBoat(){
+        createBoat();
+        createBoat();
+        createBoat();
+        int before = instance.getAllBoatsByUser("user").size();
+        boatDTO = instance.deleteBoat(boatDTO.getId().toString());
+        System.out.println("before" + before);
+        int after = instance.getAllBoatsByUser("user").size();
+        System.out.println("after" + after);
+        assertTrue(before-1 == after);
+    }
 }

@@ -1,8 +1,10 @@
 package utils;
 
 
+import dtos.AuctionDTO;
 import entities.Role;
 import entities.User;
+import facades.AuctionFacade;
 
 
 import javax.persistence.EntityManager;
@@ -23,7 +25,7 @@ public class SetupTestUsers {
     User user1 = new User("user1", "user1","Kristian");
     User admin = new User("admin", "admin1");
     User both = new User("user_admin", "test");
-
+    AuctionDTO auctionDTO = new AuctionDTO("The big one","2020-05-13","10:14:45","New york");
 
     try {
       em.getTransaction().begin();

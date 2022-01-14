@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dtos.BoatDTO;
 import dtos.UserDTO;
+import entities.Boat;
 import facades.BoatFacade;
 import utils.EMF_Creator;
 
@@ -55,5 +56,42 @@ public class BoatResource {
         return Response.ok(gson.toJson(facade.getAllBoatsByUser(thisuser)),"application/json").build();
     }
 
+    @PUT
+    @Path("/editBoat")
+    @RolesAllowed("user")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response updateBoat(String boat) {
+        BoatDTO boatDTO = gson.fromJson(boat,BoatDTO.class);
+        BoatDTO newboatDTO = facade.updateBoat(boatDTO);
+
+        return Response.ok(gson.toJson(newboatDTO),"application/json").build();
+    }
+
+    @PUT
+    @Path("/AddToAuction")
+    @RolesAllowed("user")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addToAuction(String boat){
+        BoatDTO boatDTO = gson.fromJson(boat,BoatDTO.class);
+        boatDTO = facade.addToAuction(boatDTO);
+        return Response.ok(gson.toJson(boatDTO),MediaType.APPLICATION_JSON_TYPE).build();
+    }
+
+    @DELETE
+    @Path("/deleteFromAuction/{id}")
+    @RolesAllowed("admin")
+    public Response deleteFromAuction(@PathParam("id") String id){
+        BoatDTO boatDTO = facade.deleteFromAution(Long.parseLong(id));
+        return Response.ok(gson.toJson(boatDTO),MediaType.APPLICATION_JSON_TYPE).build();
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @RolesAllowed("user")
+    public Response deleteBoat(@PathParam("id") String id){
+        System.out.println(id);
+        BoatDTO boatDTO = facade.deleteBoat(id);
+        return Response.ok(gson.toJson(boatDTO),MediaType.APPLICATION_JSON_TYPE).build();
+    }
 
 }

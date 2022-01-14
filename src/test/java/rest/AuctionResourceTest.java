@@ -36,7 +36,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class AuctionResourceTest {
 
 
-
     private static final int SERVER_PORT = 7777;
     private static final String SERVER_URL = "http://localhost/api";
     private static HttpServer httpServer;
@@ -81,12 +80,12 @@ class AuctionResourceTest {
         //Don't forget this, if you called its counterpart in @BeforeAll
         EMF_Creator.endREST_TestWithDB();
         EntityManager em = emf.createEntityManager();
-        try{
+        try {
             em.getTransaction().begin();
             em.createQuery("delete from User").executeUpdate();
             em.createQuery("delete from Role").executeUpdate();
             em.getTransaction().commit();
-        }finally {
+        } finally {
             em.close();
         }
         httpServer.shutdownNow();
@@ -103,18 +102,19 @@ class AuctionResourceTest {
 
 
     //@Test
-    public void createAuction(){
-        login("admin","admin1");
+    public void createAuction() {
+        login("admin", "admin1");
 
         JSONObject requestParams = new JSONObject();
-        requestParams.put("time","10:25:00");
-        requestParams.put("date","2023-06-14");
-        requestParams.put("name","The Big Thing");
-        requestParams.put("location","New york");
+        requestParams.put("time", "10:25:00");
+        requestParams.put("date", "2023-06-14");
+        requestParams.put("name", "The Big Thing");
+        requestParams.put("location", "New york");
         System.out.println(requestParams);
 
         given()
                 .contentType("application/json")
+                .header("x-access-token",securityToken)
                 .body(requestParams.toString())
                 .when()
                 .post("/auction/createAuction")
@@ -126,17 +126,24 @@ class AuctionResourceTest {
 
 
     //@Test
-    public void getAllAuctions(){
-        login("admin","admin1");
+    public void getAllAuctions() {
+        login("admin", "admin1");
         createAuction();
         createAuction();
 
         given()
                 .contentType("application/json")
+                .header("x-access-token",securityToken)
                 .get("/auction/allAuction").then()
                 .assertThat()
                 .statusCode(HttpStatus.OK_200.getStatusCode())
                 .body("all", greaterThan(1));
     }
 
+    //TODO : Need to be implemented.
+    @Test
+    public void editAuction(){
+
     }
+
+}
